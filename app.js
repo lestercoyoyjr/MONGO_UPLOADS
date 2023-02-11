@@ -15,6 +15,12 @@ app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 
+// Mong URI
+const mongoURI = process.env.MONGODB_URI;
+
+// Create mongo connection
+const conn = mongoose.createConnection(mongoURI);
+
 app.set('view engine', 'ejs');
 
 app.get('/', (req,res) => {

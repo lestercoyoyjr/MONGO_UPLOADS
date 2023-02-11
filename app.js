@@ -66,7 +66,8 @@ app.get('/', (req,res) => {
 // @route POST / upload
 // @desc Uploads file to DB
 app.post('/upload', upload.single('file'), ( req,res) => {
-    res.json({file: req.file})
+    // res.json({file: req.file})
+    res.redirect("/");
 })
 
 const port = 5000;

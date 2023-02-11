@@ -4,9 +4,10 @@ const path = require('path');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const GridFsStorage = require('multer-gridfs-storage');
+const {GridFsStorage} = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
+require('dotenv').config({ path: '\.env' });
 
 const app = express();
 
@@ -21,10 +22,51 @@ const mongoURI = process.env.MONGODB_URI;
 // Create mongo connection
 const conn = mongoose.createConnection(mongoURI);
 
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+})
+
+// Create Storage engine
+const storage = new GridFsStorage({
+    url: mongoURI,
+    file: (req, file) => {
+      return new Promise((resolve, reject) => {
+        crypto.randomBytes(16, (err, buf) => {
+          if (err) {
+            return reject(err);
+          }
+          const filename = buf.toString('hex') + path.extname(file.originalname);
+          const fileInfo = {
+            filename: filename,
+            bucketName: 'uploads'
+          };
+          resolve(fileInfo);
+        });
+      });
+    }
+  });
+  const upload = multer({ storage });
+
+
+
+// landing page
 app.set('view engine', 'ejs');
+
+// @route GET /
+// @desc Loads form
 
 app.get('/', (req,res) => {
     res.render('index');
+})
+
+// @route POST / upload
+// @desc Uploads file to DB
+app.post('/upload', upload.single('file'), ( req,res) => {
+    res.json({file: req.file})
 })
 
 const port = 5000;

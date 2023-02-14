@@ -23,9 +23,18 @@ const mongoURI = process.env.MONGODB_URI;
 const conn = mongoose.createConnection(mongoURI);
 
 // Init gfs
-let gfs;
+let gfs, gridfsBucket;
+
+// conn.once('open', () => {
+//   gfs = Grid(conn.db, mongoose.mongo);
+//   gfs.collection('uploads');
+// })
 
 conn.once('open', () => {
+  gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+  bucketName: 'uploads'
+});
+
   gfs = Grid(conn.db, mongoose.mongo);
   gfs.collection('uploads');
 })
@@ -114,11 +123,15 @@ app.get('/image/:filename', (req,res) => {
     }
 
     // Check if image
-    if(file.contentType === 'image/jpeg' || file.contentType === 'image/png'){
+    /* if(file.contentType === 'image/jpeg' || file.contentType === 'image/png'){
       // Read output to browser
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
-    } else {
+    }  */
+    if(file.contentType === 'image/jpeg' || file.contentType ==='image/png') {
+      const readStream = gridfsBucket.openDownloadStreamByName(file.filename);
+      readStream.pipe(res);
+    }else {
       res.status(404).json({
         err: 'Not an image'
       });

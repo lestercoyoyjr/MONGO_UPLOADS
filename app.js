@@ -69,7 +69,25 @@ app.set('view engine', 'ejs');
 // @desc Loads form
 
 app.get('/', (req,res) => {
-    res.render('index');
+  gfs.files.find().toArray((err, files) => {
+    // check if files
+    if(!files || files.length == 0){
+      res.render('index', {files: false});
+    } else {
+      file.map(file => {
+        if(file.contentType === 'image/jpeg' || file.contentType === 'image/png')
+        {
+          file.isImage = true;
+        } else {
+          file.isImage = false;
+        }
+      });
+      res.render('index', {files: files})
+    }
+
+    // Files exist
+    return res.json(files);
+  });
 })
 
 // @route POST / upload

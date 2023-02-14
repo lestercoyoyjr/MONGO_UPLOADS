@@ -70,6 +70,22 @@ app.post('/upload', upload.single('file'), ( req,res) => {
     res.redirect("/");
 })
 
+// @routes GET /files
+// @desc dislpay all files in JSON
+app.get('/files', (req,res) => {
+  gfs.files.find().toArray((err, files) => {
+    // check if files
+    if(!files || files.length == 0){
+      return res.status(404).json({
+        err: 'No files exist'
+      });
+    }
+
+    // Files exist
+    return res.json(files);
+  });
+})
+
 const port = 5000;
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

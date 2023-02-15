@@ -111,7 +111,7 @@ app.get('/files', (req,res) => {
 })
 
 // @routes GET /files/:filename
-// @desc disply single object in JSON
+// @desc display single object in JSON
 app.get('/files/:filename', (req,res) => {
   gfs.files.findOne({filename: req.params.filename}, (err, file) => {
     // check if file
@@ -153,6 +153,17 @@ app.get('/image/:filename', (req,res) => {
     }
   });
 })
+
+// @route DELETE /files/:id
+// @desc Delete file
+app.deleteFileByFilename = async (req, res, next) => {
+  const file = await gfs.files.findOne({ filename: req.params.filename });
+  const gsfb = new mongoose.mongo.GridFSBucket(conn.db, { bucketName: 'uploads' });
+  gsfb.delete(file._id, function (err, gridStore) {
+    if (err) return next(err);
+    res.status(200).end();
+  });
+};
 
 const port = 5000;
 

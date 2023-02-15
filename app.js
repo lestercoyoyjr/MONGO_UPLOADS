@@ -84,9 +84,6 @@ app.get('/', (req,res) => {
       });
       res.render('index', {files: files})
     }
-
-    // Files exist
-    return res.json(files);
   });
 })
 

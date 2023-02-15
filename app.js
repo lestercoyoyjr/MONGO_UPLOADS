@@ -74,7 +74,7 @@ app.get('/', (req,res) => {
     if(!files || files.length == 0){
       res.render('index', {files: false});
     } else {
-      file.map(file => {
+      files.map(file => {
         if(file.contentType === 'image/jpeg' || file.contentType === 'image/png')
         {
           file.isImage = true;
